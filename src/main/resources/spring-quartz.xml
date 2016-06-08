@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		">
+
+
+
+
+	<!-- 任务列表 -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="dailyWorkTaskTrigger" />
+				<ref bean="anotherWorkTaskTrigger" />
+			</list>
+		</property>
+		<property name="autoStartup" value="true" />
+	</bean>
+	
+	
+	<!-- 触发器 -->
+	<bean id="dailyWorkTaskTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="dailyWorkTaskDetail" />
+		<property name="cronExpression" value="*/10 * * * * ?" /><!-- 配置成每隔一分钟执行一次 -->
+	</bean>
+
+	<bean id="anotherWorkTaskTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="anotherWorkTaskDetail" />
+		<property name="cronExpression" value="0 0/5 * * * ?" /><!-- 配置成每隔一分钟执行一次 -->
+	</bean>
+
+	<!-- 定时任务执行对象 -->
+	<bean id="dailyWork" class="com.lanxi.lanxiproject.servlet.DailyWork"></bean>
+	<bean id="anotherWork" class="com.lanxi.lanxiproject.servlet.AnotherWork"></bean>
+
+
+
+	<!-- 任务细节 -->
+	<bean id="dailyWorkTaskDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="dailyWork" />
+		<property name="targetMethod" value="work" />
+		<property name="concurrent" value="false" />
+		<!-- 是否允许任务并发执行。当值为false时，表示必须等到前一个线程处理完毕后才再启一个新的线程 -->
+	</bean>
+
+	<bean id="anotherWorkTaskDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="anotherWork" />
+		<property name="targetMethod" value="work" />
+		<property name="concurrent" value="false" />
+		<!-- 是否允许任务并发执行。当值为false时，表示必须等到前一个线程处理完毕后才再启一个新的线程 -->
+	</bean>
+
+
+</beans>
